@@ -59,7 +59,7 @@ ul.pts li{margin:4px 0}
 code{font-family:var(--f-code);font-size:.88em;background:var(--code-bg);color:var(--code-text);padding:1px 5px;border-radius:4px;overflow-wrap:anywhere}
 .code{margin:12px 0;border:1px solid var(--line);border-radius:8px;overflow:hidden;background:var(--code-bg)}
 .code .lab{font-size:12px;font-weight:600;padding:4px 12px;border-bottom:1px solid var(--line);color:var(--muted);letter-spacing:.04em}
-.code.run .lab{color:var(--ok)}
+.code.run .lab,.code.compile .lab{color:var(--ok)}
 .code.cerr .lab{color:var(--bad)}
 .code.rerr .lab{color:var(--warn)}
 .code pre{margin:0;padding:12px 14px;overflow-x:auto;font:13.5px/1.65 var(--f-code);color:var(--code-text)}
@@ -7344,16 +7344,15 @@ public class MyReader extends Reader {
     void read() throws Exception { } <span class="c">// 編譯錯誤：Exception 比 IOException 更廣</span>
 }</pre></div>
 
-::compile f
-import java.io.IOException;
+<div class="code compile"><div class="lab">可以編譯</div><pre tabindex="0">import java.io.IOException;
 import java.io.FileNotFoundException;
 class Reader {
     void read() throws IOException { }
 }
 public class MyReader extends Reader {
-    void read() throws FileNotFoundException, IllegalStateException { } // 更窄的 checked，加 unchecked，都可以
-}
-::end
+    void read() throws FileNotFoundException, IllegalStateException { } <span class="c">// 更窄的 checked，加 unchecked，都可以</span>
+}</pre></div>
+
 <p><code>FileNotFoundException</code>（找不到檔案）是一種 <code>IOException</code>，比它窄，所以可以。<code>IllegalStateException</code> 是一種 <code>RuntimeException</code>，屬於 unchecked，加多少都不違規。</p>
 <h4>不能覆寫的方法</h4>
 <ul class="pts">
@@ -9481,14 +9480,13 @@ public class Load {
     }
 }</pre></div>
 
-::compile f
-import java.io.IOException;
+<div class="code compile"><div class="lab">可以編譯</div><pre tabindex="0">import java.io.IOException;
 public class Load {
-    static void load() throws IOException { // 宣告了，可以編譯
+    static void load() throws IOException { <span class="c">// 宣告了，可以編譯</span>
         throw new IOException("讀不到");
     }
-}
-::end
+}</pre></div>
+
 <p>責任會跟著往外傳。<code>load()</code> 宣告了 <code>throws IOException</code>，呼叫 <code>load()</code> 的方法就也面臨同樣的選擇：處理，或者自己也宣告。</p>
 <div class="code cerr"><div class="lab">編譯失敗</div><pre tabindex="0">import java.io.IOException;
 public class Caller {
@@ -9498,15 +9496,14 @@ public class Caller {
     }
 }</pre></div>
 
-::compile f
-import java.io.IOException;
+<div class="code compile"><div class="lab">可以編譯</div><pre tabindex="0">import java.io.IOException;
 public class Caller {
     static void load() throws IOException { }
-    public static void main(String[] args) throws IOException { // main 也可以宣告
+    public static void main(String[] args) throws IOException { <span class="c">// main 也可以宣告</span>
         load();
     }
-}
-::end
+}</pre></div>
+
 <p><code>main</code> 宣告的例外真的丟出時，沒有人再往外接，程式就中止並印出堆疊追蹤。</p>
 <h4>throws 的細節</h4>
 <ul class="pts">
@@ -10297,15 +10294,14 @@ NumberFormatException</pre></div></div>
 main 接到：壞了</pre></div></div>
 
 <p>如果用 <code>catch (Exception e)</code> 接住再 <code>throw e</code>，方法要宣告什麼？<code>e</code> 的型別是 <code>Exception</code>，看起來要宣告 <code>throws Exception</code>。但 Java 7 起編譯器會更精確地分析：只要 <code>e</code> 沒被重新給值，<code>throw e</code> 只可能丟出 <code>try</code> 裡真的會丟的那些 checked exception，所以只要宣告那些就好。這叫<b>精確重新丟出</b>（precise rethrow）。好處是呼叫 <code>call</code> 的人只要處理 <code>AException</code>、<code>BException</code>，不會被迫去處理範圍大得多的 <code>Exception</code>：</p>
-::compile f
-class AException extends Exception { }
+<div class="code compile"><div class="lab">可以編譯</div><pre tabindex="0">class AException extends Exception { }
 class BException extends Exception { }
 public class Precise {
     static void risky(int n) throws AException, BException {
         if (n == 1) throw new AException();
         throw new BException();
     }
-    static void call(int n) throws AException, BException { // 不用寫 throws Exception
+    static void call(int n) throws AException, BException { <span class="c">// 不用寫 throws Exception</span>
         try {
             risky(n);
         } catch (Exception e) {
@@ -10313,8 +10309,8 @@ public class Precise {
             throw e;
         }
     }
-}
-::end
+}</pre></div>
+
 <div class="code cerr"><div class="lab">編譯失敗</div><pre tabindex="0">class AException extends Exception { }
 public class Precise2 {
     static void risky() throws AException { throw new AException(); }
