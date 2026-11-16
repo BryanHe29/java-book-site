@@ -17113,8 +17113,8 @@ Amy 9 null B</pre></div></div>
 <tr><td><code>private</code></td><td>只給序列化機制用，別人不需要看到（寫成其他存取權限也能用，但慣例是 private）</td></tr>
 <tr><td><code>static</code></td><td>是類別的版本，不是每個物件各一個</td></tr>
 <tr><td><code>final</code></td><td>版本號碼不該在執行中被改</td></tr>
-<tr><td><code>long</code></td><td>規定的型別。寫成 <code>int</code> 編譯照樣會過，但序列化機制不承認它，當作你沒寫，改用下面說的自動算出來的號碼</td></tr>
-<tr><td><code>serialVersionUID</code></td><td>名字固定，拼錯（例如 <code>serialVersionUid</code>）也會編譯過，但它只是一個普通的 static 欄位，同樣當作沒寫</td></tr>
+<tr><td><code>long</code></td><td>規定的型別。寫成 <code>int</code> 編譯照樣會過（加上 <code>-Xlint:serial</code> 才會警告 <code>serialVersionUID must be of type long</code>），JDK 實際上也會讀它的值，但這不符合 <code>Serializable</code> 的規定，一定要寫 <code>long</code></td></tr>
+<tr><td><code>serialVersionUID</code></td><td>名字固定，拼錯（例如 <code>serialVersionUid</code>）也會編譯過，但它只是一個普通的 static 欄位，序列化機制當作你沒寫，改用下面說的自動算出來的號碼（<code>-Xlint:serial</code> 會警告 <code>has no definition of serialVersionUID</code>）</td></tr>
 </table></div>
 <p>沒寫的話，Java 會依照類別的內容自動算一個。問題是：類別改了一點點（例如加一個方法），自動算出來的號碼就變了，舊檔案就讀不回來。自己寫死一個號碼，只要你沒改它，舊檔案就讀得回來。</p>
 <h4>欄位的型別也要能序列化</h4>
@@ -18694,7 +18694,7 @@ java -cp ".;res" Main    <span class="c">// Windows PowerShell：分號要包在
 
 <p>PowerShell 把 <code>;</code> 當成「一行裡分隔兩個指令」的符號，不加引號會變成先執行 <code>java -cp .</code>、再執行 <code>res Main</code>，兩個都會出錯。</p>
 <p><code>.</code> 代表目前資料夾（<code>Main.class</code> 在這裡），<code>res</code> 是放 properties 檔的資料夾。</p>
-<div class="box key"><span class="t">重點</span><p>Java 9 開始，properties 資源包預設用 UTF-8 讀取，所以可以直接寫中文。更早的版本預設用 ISO-8859-1 讀取，中文要寫成 <code>你好</code>（「你好」的 Unicode 編碼）這種寫法，舊文件會看到。</p></div>
+<div class="box key"><span class="t">重點</span><p>Java 9 開始，properties 資源包預設用 UTF-8 讀取，所以可以直接寫中文。更早的版本預設用 ISO-8859-1 讀取，中文要寫成 <code>\u4f60\u597d</code> 這種寫法（<code>\u</code> 加上 4 位十六進位的 Unicode 編號，第 2 章；<code>4f60</code> 是「你」、<code>597d</code> 是「好」），舊文件會看到。</p></div>
 <h4>properties 的語法</h4>
 <p>下面用 <code>PropertyResourceBundle</code> 直接讀一段文字，效果等於讀一個 properties 檔，方便看每一行被讀成什麼。text block（第 4 章）裡的內容就是檔案內容：</p>
 <div class="code run"><div class="lab">可以執行</div><pre tabindex="0">String file = """
