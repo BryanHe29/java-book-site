@@ -411,7 +411,7 @@ amy@MacBook java-practice % java Hello
 <p>規則很簡單：<b>每次改了 <code>.java</code>，都要先 <code>javac</code> 再 <code>java</code></b>。</p>
 
 <h3 id="s0-6">0.6 看懂錯誤訊息</h3>
-<p>出錯是正常的，每個寫程式的人每天都在出錯。重要的是看得懂訊息，知道去哪裡改。Java 的錯誤訊息是英文，就算你的電腦設定成中文也一樣。不用怕，常見的就這幾種。</p>
+<p>出錯是正常的，每個寫程式的人每天都在出錯。重要的是看得懂訊息，知道去哪裡改。Java 的錯誤訊息是英文：電腦設定成繁體中文也一樣是英文（設定成簡體中文的電腦才會顯示簡體中文）。不用怕，常見的就這幾種。</p>
 <h4>錯誤一：找不到指令</h4>
 <div class="code plain"><pre tabindex="0">amy@MacBook ~ % javac Hello.java
 zsh: command not found: javac</pre></div>
@@ -457,11 +457,18 @@ Hello.java:3: error: ';' expected
 
 <p>訊息看起來跟大小寫無關，但真正的原因就是 <code>system</code> 應該是 <code>System</code>。<b>錯誤訊息講的不一定是真正的原因，但行號和箭頭幾乎都指在附近</b>，先去那一行仔細看拼字和符號。</p>
 <p>用了「文字編輯」或 Word，雙引號被換成彎的：</p>
-<div class="code plain"><pre tabindex="0">Hello.java:3: error: illegal character: '“'
+<div class="code plain"><pre tabindex="0">Hello.java:3: error: illegal character: '\u201c'
         System.out.println(“Hi”);
-                           ^</pre></div>
+                           ^
+Hello.java:3: error: illegal character: '\u201d'
+        System.out.println(“Hi”);
+                              ^
+Hello.java:3: error: not a statement
+        System.out.println(“Hi”);
+                            ^
+3 errors</pre></div>
 
-<p><code>illegal character</code> 是「不認得的字元」。看到這個，就檢查引號是不是彎的，改用 VS Code 重打。</p>
+<p><code>illegal character</code> 是「不認得的字元」。javac 不直接印出那個字元，而是印它的編號：<code>\u201c</code> 是左邊的彎引號 <code>“</code>，<code>\u201d</code> 是右邊的 <code>”</code>（<code>\u</code> 加四位十六進位數字的寫法，第 2 章會講）。看到 <code>illegal character</code> 加上這兩個編號，就檢查引號是不是彎的，改用 VS Code 重打。第三個錯誤 <code>not a statement</code> 是前兩個連帶引起的，把引號改直就一起消失，這正是下面重點框說的情況。</p>
 <div class="box key"><span class="t">重點</span><p>一次出現很多個錯誤時，<b>先改第一個</b>。後面的錯誤常常是被第一個連帶引起的，改掉第一個，後面的可能就一起消失了。</p></div>
 <h4>錯誤四：執行時找不到類別</h4>
 <div class="code plain"><pre tabindex="0">amy@MacBook java-practice % java Hello.class
@@ -699,7 +706,7 @@ System.out.println("x");</pre></div>
 <h3 id="s1-5">1.5 識別字和關鍵字</h3>
 <p><b>識別字</b>就是你幫變數、方法、類別取的名字。規則有四條：</p>
 <ol class="pts">
-<li>第一個字元要是字母、<code>$</code> 或 <code>_</code>，不能是數字。</li>
+<li>第一個字元要是字母、<code>$</code> 或 <code>_</code>，不能是數字。（其實 <code>€</code>、<code>¥</code> 這類貨幣符號也可以，但沒有人這樣寫，考試也不考，記字母、<code>$</code>、<code>_</code> 就好。）</li>
 <li>第二個字元開始，可以再加數字。</li>
 <li>不能有空白，也不能有 <code>-</code>、<code>#</code>、<code>@</code> 這些符號。</li>
 <li>不能跟關鍵字或 <code>true</code>、<code>false</code>、<code>null</code> 同名。</li>
@@ -1838,7 +1845,7 @@ byte c = Math.max(a, b); <span class="c">// 編譯錯誤：回傳 int</span></pr
 <div class="code run"><div class="lab">可以執行</div><pre tabindex="0">System.out.println(Math.abs(Integer.MIN_VALUE));</pre><div class="out"><div class="lab">輸出</div><pre>-2147483648</pre></div></div>
 
 <h4>round</h4>
-<p><code>Math.round</code> 的定義是「加 0.5 之後往下取整」。「往下」是往數線的左邊、比較小的方向，<code>-2.0</code> 往下就是 <code>-2</code>，<code>-2.1</code> 往下是 <code>-3</code>。所以剛好一半的時候一律往正方向走，<code>-2.5</code> 變成 <code>-2</code>，不是 <code>-3</code>，負數要特別小心：</p>
+<p><code>Math.round</code> 取最接近的整數，剛好一半時往正方向（往大的那邊）走。可以用「加 0.5 之後往下取整」來算，結果幾乎都一樣（只有像 <code>0.49999999999999994</code> 這種極端的小數會差 1，考試不會考）。「往下」是往數線的左邊、比較小的方向，<code>-2.0</code> 往下就是 <code>-2</code>，<code>-2.1</code> 往下是 <code>-3</code>。所以剛好一半的時候一律往正方向走，<code>-2.5</code> 變成 <code>-2</code>，不是 <code>-3</code>，負數要特別小心：</p>
 <div class="code run"><div class="lab">可以執行</div><pre tabindex="0">System.out.println(Math.round(2.4));
 System.out.println(Math.round(2.5));
 System.out.println(Math.round(-2.5));  <span class="c">// -2.5 + 0.5 = -2.0</span>
